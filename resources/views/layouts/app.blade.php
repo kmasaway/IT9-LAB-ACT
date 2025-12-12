@@ -6,8 +6,10 @@
     <title>Blog App</title>
     <style>
         body { font-family: Arial, sans-serif; margin: 0; background: #f5f6fa; color: #222; }
-        header { background: #1f2937; color: #fff; padding: 1rem 1.5rem; }
+        header { background: #1f2937; color: #fff; padding: 1rem 1.5rem; display:flex; align-items:center; justify-content:space-between; }
         header a { color: #fff; margin-right: 1rem; text-decoration: none; font-weight: 600; }
+        header .right { display:flex; align-items:center; gap:0.75rem; }
+        header form { margin: 0; }
         main { max-width: 900px; margin: 2rem auto; background: #fff; padding: 1.5rem; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
         .actions { display: flex; gap: 0.5rem; align-items: center; }
         .btn { display: inline-block; padding: 0.5rem 0.9rem; border-radius: 6px; text-decoration: none; font-weight: 600; border: 1px solid #1f2937; color: #1f2937; transition: background 0.15s, color 0.15s; }
@@ -25,8 +27,25 @@
 </head>
 <body>
     <header>
-        <a href="{{ route('posts.index') }}">Blog</a>
-        <a href="{{ route('posts.create') }}">New Post</a>
+        <div>
+            <a href="{{ route('posts.index') }}">Blog</a>
+            @auth
+                <a href="{{ route('posts.create') }}">New Post</a>
+                <a href="/dashboard">Dashboard</a>
+            @endauth
+        </div>
+        <div class="right">
+            @auth
+                <span style="color:#d1d5db;">Hi, {{ auth()->user()->name }}</span>
+                <form method="POST" action="/logout">
+                    @csrf
+                    <button class="btn" type="submit">Logout</button>
+                </form>
+            @else
+                <a href="/login">Login</a>
+                <a href="/register">Register</a>
+            @endauth
+        </div>
     </header>
     <main>
         @if (session('status'))

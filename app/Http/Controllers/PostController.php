@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Post;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class PostController extends Controller
 {
@@ -12,7 +13,9 @@ class PostController extends Controller
      */
     public function index()
     {
-        $posts = Post::latest()->paginate(10);
+        $posts = Post::where('user_id', Auth::id())
+            ->latest()
+            ->paginate(10);
 
         return view('posts.index', compact('posts'));
     }
@@ -35,7 +38,7 @@ class PostController extends Controller
             'body' => ['required', 'string'],
         ]);
 
-        Post::create($data);
+        Post::create($data + ['user_id' => Auth::id()]);
 
         return redirect()->route('posts.index')->with('status', 'Post created successfully.');
     }
@@ -45,6 +48,8 @@ class PostController extends Controller
      */
     public function show(Post $post)
     {
+        abort_if($post->user_id !== Auth::id(), 403);
+
         return view('posts.show', compact('post'));
     }
 
@@ -53,6 +58,8 @@ class PostController extends Controller
      */
     public function edit(Post $post)
     {
+        abort_if($post->user_id !== Auth::id(), 403);
+
         return view('posts.edit', compact('post'));
     }
 
@@ -61,6 +68,8 @@ class PostController extends Controller
      */
     public function update(Request $request, Post $post)
     {
+        abort_if($post->user_id !== Auth::id(), 403);
+
         $data = $request->validate([
             'title' => ['required', 'string', 'max:255'],
             'body' => ['required', 'string'],
@@ -76,6 +85,8 @@ class PostController extends Controller
      */
     public function destroy(Post $post)
     {
+        abort_if($post->user_id !== Auth::id(), 403);
+
         $post->delete();
 
         return redirect()->route('posts.index')->with('status', 'Post deleted successfully.');
